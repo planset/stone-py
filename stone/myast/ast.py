@@ -33,7 +33,7 @@ class ASTLeaf(ASTree):
     empty = []
 
     def __init__(self, token):
-        self.token = token
+        self._token = token
 
     def child(self, i):
         raise IndexError()
@@ -45,15 +45,15 @@ class ASTLeaf(ASTree):
         return iter(self.empty)
 
     def location(self):
-        return 'at line {}'.format(self.token.line_number)
+        return 'at line {}'.format(self._token.line_number)
 
     def name(self):
-        if self.token:
-            return self.token.get_text()
+        if self._token:
+            return self._token.get_text()
         return 'NotImplemented'
 
     def token(self):
-        return self.token
+        return self._token
 
 
 class ASTList(ASTree):

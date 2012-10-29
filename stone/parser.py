@@ -113,7 +113,10 @@ class Tree(Element):
 
 class OrTree(Element):
     def __init__(self, parsers):
-        self.parsers = parsers
+        if isinstance(parsers, tuple):
+            self.parsers = list(parsers)
+        else:
+            self.parsers = parsers
 
     def parse(self, lexer, results):
         parser = self.choose(lexer)

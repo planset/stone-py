@@ -10,7 +10,7 @@ class BinaryExpr(ast.ASTList):
         return self.child(0)
     
     def operator(self):
-        return self.child(1).token.get_text()
+        return self.child(1).token().get_text()
 
     def right(self):
         return self.child(2)

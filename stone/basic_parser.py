@@ -12,17 +12,17 @@ rule = parser.Parser.rule
 class BasicParser(object):
 
     def __init__(self):
-        self._make_reserved()
-        self._make_operators()
-        self._make_rule()
+        self.__make_reserved()
+        self.__make_operators()
+        self.__make_rule()
 
-    def _make_reserved(self):
+    def __make_reserved(self):
         self.reserved = util.HashSet()
         self.reserved.append(";")
         self.reserved.append("}")
         self.reserved.append(mytoken.Token.EOL)
 
-    def _make_operators(self):
+    def __make_operators(self):
         self.operators = parser.Operators()
         self.operators.add("=", 1, parser.Operators.RIGHT);
         self.operators.add("==", 2, parser.Operators.LEFT);
@@ -34,7 +34,7 @@ class BasicParser(object):
         self.operators.add("/", 4, parser.Operators.LEFT);
         self.operators.add("%", 4, parser.Operators.LEFT);
 
-    def _make_rule(self):
+    def __make_rule(self):
         self.expr0 = rule()
         self.primary = rule(expr.PrimaryExpr) \
                 .or_(rule().sep("(").ast(self.expr0).sep(")"),

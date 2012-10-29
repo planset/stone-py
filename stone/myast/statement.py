@@ -45,5 +45,24 @@ class NullStmnt(ast.ASTList):
     def __init__(self, list_of_astree):
         super(NullStmnt, self).__init__(list_of_astree)
 
+class DefStmnt(ast.ASTList):
+    def __init__(self, list_of_astree):
+        super(DefStmnt, self).__init__(list_of_astree)
+
+    def name(self):
+        return self.child(0).token().get_text()
+
+    def parameters(self):
+        return self.child(1)
+
+    def body(self):
+        return self.child(2)
+
+    def to_string(self):
+        return "(def {} {} {})".format(
+                self.name(),
+                self.parameters(),
+                self.body())
+
 
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
