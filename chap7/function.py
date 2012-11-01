@@ -24,7 +24,9 @@ class Function(object):
     def make_env(self):
         return nestedenv.NestedEnv(self._env)
 
-    def to_string(self):
+    def __str__(self):
         return "<fun:{}>".format(self.__hash__())
+    
+    
 
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4

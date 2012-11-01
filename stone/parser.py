@@ -146,7 +146,7 @@ class Repeat(Element):
     def parse(self, lexer, results):
         while self.parser.match(lexer):
             t = self.parser.parse(lexer)
-            if not isinstance(t, ast.ASTList) or t.num_children() > 0:
+            if t.__class__ != ast.ASTList or t.num_children() > 0:
                 results.append(t)
             if self.only_once:
                 break
