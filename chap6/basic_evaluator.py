@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from stone.util import reviser
+from stone.util import reviser, super
 from stone.myast import ast, literal, expression, statement
 from stone import exception
 
@@ -100,7 +100,7 @@ class BinaryEx(expression.BinaryExpr):
             return self.compute_number(left, op, right)
         else:
             if op == '+':
-                return int(left) + int(right)
+                return str(left) + str(right)
             elif op == '==':
                 if left is None:
                     return TRUE if right else FALSE

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from stone.util import reviser
+from stone.util import reviser, super
 from stone.myast import statement, fun, expression
 from stone import exception
 
@@ -8,14 +8,16 @@ from chap6 import basic_env
 from chap6 import basic_evaluator
 from chap7 import function
 
-@reviser
-class EnvEx(basic_env.Environment):
-    def put_new(self, name, value):
-        raise NotImplementedError()
-    def where(self, name):
-        raise NotImplementedError()
-    def set_outer(self, env):
-        raise NotImplementedError()
+#@reviser
+#class EnvEx(basic_env.Environment):
+#    def __init__(self, list_of_astree):
+#        super(EnvEx, self).__init__(list_of_astree)
+#    def put_new(self, name, value):
+#        raise NotImplementedError()
+#    def where(self, name):
+#        raise NotImplementedError()
+#    def set_outer(self, env):
+#        raise NotImplementedError()
 
 @reviser
 class DefStmntEx(statement.DefStmnt):

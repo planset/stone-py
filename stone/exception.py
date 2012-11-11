@@ -24,4 +24,8 @@ class StoneException(RuntimeException):
 class IllegalArgumentException(Exception):
     pass
     
+class NumberFormatException(Exception):
+    def __init__(self, message):
+        super(NumberFormatException, self).__init__(message)
+        
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4

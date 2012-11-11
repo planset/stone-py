@@ -2,6 +2,7 @@
 
 import inspect
 import types
+import functools
 
 class HashSet(object):
     """A set abstraction supporting the basic set operations.
@@ -96,20 +97,113 @@ class HashSet(object):
     
 
 
-def reviser(original_class):
-    '''Add methods defined in the derived class to the base class.
+original_super = super
+def _super(cls, obj):
+    if obj.__dict__.has_key('original_obj'):
+        original_obj = obj.original_obj
+    else:
+        original_obj = obj
+
+    if original_obj.__class__.__dict__.has_key('__reviser__'):
+        if cls in original_obj.__reviser__:
+            parent_class = _get_parent_class(cls)
+
+            class _cls(parent_class):
+                def __init__(self, obj):
+                    self.original_obj = original_obj if obj.__dict__.has_key('original_obj') else obj
+                    self._is_calling = False
+
+                def __getattribute__(self, attrname):
+                    if attrname == 'original_obj':
+                        return object.__getattribute__(self, attrname)
+                    m = object.__getattribute__(self, attrname)
+                    if inspect.ismethod(m):
+                        # 元のメソッドを呼び出したあと、オブジェクトの属性を更新する
+                        def _m(self, *args, **kwargs):
+                            if not self._is_calling:
+                                self._is_calling = True
+                                for k,v in inspect.getmembers(self.original_obj):
+                                    if k.startswith('__') or inspect.ismethod(v) or isinstance(v, functools.partial):
+                                        continue
+                                    self.__dict__[k] = v
+                                result = m(*args, **kwargs)
+                                self._is_calling = False
+                                for k,v in inspect.getmembers(self):
+                                    if k.startswith('__') or inspect.ismethod(v):
+                                        continue
+                                    self.original_obj.__dict__[k] = v
+                                self._is_calling = False
+                                return result 
+                            else:
+                                return m(*args, **kwargs)
+
+                        return functools.partial(_m, self)
+                    return m
+            return _cls(obj)
+
+    return original_super(cls, obj)
+
+super = _super
+
+def _get_super_classes(cls):
+    mro = inspect.getmro(cls)
+    #print 'classes:', mro[1:-1]
+    return mro[1:-1]
+
+def _get_parent_class(cls):
+    return _get_super_classes(cls)[0]
+
+def _get_base_class(cls):
+    '''@reviserしているクラスであれば更に基底クラス方向に検索する。
+    @reviserしていないクラスがあれば、そのクラスを返す。
     '''
-    parent_class = original_class.__bases__[0]
-    parent_class_init = parent_class.__init__
+    classes = inspect.getmro(cls)[1:-1]
+    if len(classes) == 0:
+        return cls
+    c = classes[0]
+    if c.__dict__.has_key('is_reviser'):
+        return _get_base_class(c)
+    else:
+        return c
+
+def _getattribute(self, attrname, *args, **kwargs):
+    '''__init__は__getattribute__は呼ばれない'''
+
+    #特殊メソッドは今のところ先に返しちゃう
+    if attrname.startswith('__') and attrname.endswith('__'):
+        return object.__getattribute__(self, attrname)
+
+    if attrname != '__reviser__':
+        for cls in self.__reviser__:
+            if cls.__dict__.has_key(attrname):
+                v = cls.__dict__[attrname]
+                if inspect.isfunction(v):
+                    return functools.partial(v, self)
+
+        if attrname != '__base_class_init__':
+            members = dict(inspect.getmembers(self.__class__))
+            if members.has_key(attrname):
+                v = members[attrname]
+                if inspect.isfunction(v):
+                    return functools.partial(v, self)
+
+    return object.__getattribute__(self, attrname)
+
+
+def reviser(original_class):
+    base_class = _get_base_class(original_class)
+    if not base_class.__dict__.has_key('__reviser__'):
+        base_class.__reviser__ = []
+    base_class.__reviser__.insert(0, original_class)
+    base_class.__getattribute__ = _getattribute
+    
+    __base_class_init__ = base_class.__init__
     def _init(self, *args, **kwargs):
-        parent_class_init(self, *args, **kwargs)
-        for k,v in original_class.__dict__.iteritems():
-            if not inspect.isfunction(v):
-                continue
-            self.__dict__[k] = types.MethodType(v, self)
-    parent_class.__init__ = _init
+        return __base_class_init__(self, *args, **kwargs)
+    base_class.__init__ = _init
+    
+    original_class.is_reviser = True
 
-
-
+    return original_class
 
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4

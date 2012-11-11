@@ -93,13 +93,13 @@ class Lexer(object):
 
     def to_string_literal(self, s):
         sb = []
-        len = len(s) - 1
+        _len = len(s) - 1
         skip = False
         for i, c in enumerate(s):
             if skip:
                 skip = False
                 continue
-            if c == '\\' and i + 1 < len:
+            if c == '\\' and i + 1 < _len:
                 c2 = s[i + 1]
                 if c2 == '"' or c2 == '\\':
                     c = c2

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from stone.util import reviser
+from stone.util import reviser, super
 from stone.myast import fun
 
 #from chap6 import basic_env
