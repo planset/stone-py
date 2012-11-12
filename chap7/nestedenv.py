@@ -4,11 +4,8 @@
 from chap6 import basic_env
 
 
-
 class NestedEnv(basic_env.Environment):
-    """class documentation"""
     def __init__(self, env=None):
-        """__init__ documentation"""
         self.values = {}
         self.outer = env
 
