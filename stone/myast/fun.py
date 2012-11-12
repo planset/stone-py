@@ -37,5 +37,15 @@ class Arguments(Postfix):
     def size(self):
         return self.num_children()
 
+class ArrayRef(Postfix):
+    def __init__(self, list_of_astree):
+        super(ArrayRef, self).__init__(list_of_astree)
+
+    def index(self):
+        return self.child(0)
+
+    def to_string(self):
+        return '[{}]'.format(self.index())
+
 
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4

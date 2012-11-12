@@ -33,4 +33,12 @@ class StringLiteral(ast.ASTLeaf):
     def value(self):
         return self.token().get_text()
 
+class ArrayLiteral(ast.ASTList):
+    def __init__(self, list_of_astree):
+        super(ArrayLiteral, self).__init__(list_of_astree)
+
+    def size(self):
+        return self.num_children()
+
+
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4

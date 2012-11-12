@@ -145,6 +145,9 @@ class StrToken(mytoken.Token):
         return True
 
     def get_text(self):
+        if self.literal.startswith('"') \
+            and self.literal.endswith('"'):
+            return self.literal[1:-1]
         return str(self.literal)
 
 
