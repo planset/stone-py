@@ -13,7 +13,7 @@ class Function(object):
         """
         self._parameters = parameters
         self._body = body
-        self._env = env
+        self.env = env
 
     def parameters(self):
         return self._parameters
@@ -22,7 +22,7 @@ class Function(object):
         return self._body
 
     def make_env(self):
-        return nestedenv.NestedEnv(self._env)
+        return nestedenv.NestedEnv(self.env)
 
     def __str__(self):
         return "<fun:{}>".format(self.__hash__())

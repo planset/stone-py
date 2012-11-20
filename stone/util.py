@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import inspect
-import types
 import functools
 
 class HashSet(object):
@@ -118,7 +117,7 @@ def _super(cls, obj):
                         return object.__getattribute__(self, attrname)
                     m = object.__getattribute__(self, attrname)
                     if inspect.ismethod(m):
-                        # 元のメソッドを呼び出したあと、オブジェクトの属性を更新する
+                        # 元のメソッドを呼び出したあと、オブジェクトの属性を更新する。
                         def _m(self, *args, **kwargs):
                             if not self._is_calling:
                                 self._is_calling = True
@@ -147,7 +146,6 @@ super = _super
 
 def _get_super_classes(cls):
     mro = inspect.getmro(cls)
-    #print 'classes:', mro[1:-1]
     return mro[1:-1]
 
 def _get_parent_class(cls):
@@ -166,6 +164,40 @@ def _get_base_class(cls):
     else:
         return c
 
+
+def _search_reviser(obj, attrname):
+    if obj.__class__ != type or obj.__dict__.has_key('__reviser__'):
+        for cls in obj.__reviser__:
+            if cls.__dict__.has_key(attrname):
+                v = cls.__dict__[attrname]
+                if inspect.isfunction(v):
+                    return v
+    return None
+
+def _search_members(cls, attrname):
+    if attrname != '__base_class_init__':
+        members = dict(inspect.getmembers(cls))
+        if members.has_key(attrname):
+            v = members[attrname]
+            if inspect.isfunction(v):
+                return v
+    return None
+
+def _lookup_attrname(cls, attrname, compset):
+    for parent_cls in cls.__bases__:
+        if parent_cls in compset:
+            continue 
+        compset.add(parent_cls)
+
+        v = _search_reviser(parent_cls, attrname)
+        v = v or _search_members(parent_cls, attrname)
+        v = v or _lookup_attrname(parent_cls, attrname, compset) 
+
+        if v:
+            return v
+
+    return None
+
 def _getattribute(self, attrname, *args, **kwargs):
     '''__init__は__getattribute__は呼ばれない'''
 
@@ -174,18 +206,11 @@ def _getattribute(self, attrname, *args, **kwargs):
         return object.__getattribute__(self, attrname)
 
     if attrname != '__reviser__':
-        for cls in self.__reviser__:
-            if cls.__dict__.has_key(attrname):
-                v = cls.__dict__[attrname]
-                if inspect.isfunction(v):
-                    return functools.partial(v, self)
-
-        if attrname != '__base_class_init__':
-            members = dict(inspect.getmembers(self.__class__))
-            if members.has_key(attrname):
-                v = members[attrname]
-                if inspect.isfunction(v):
-                    return functools.partial(v, self)
+        v = _search_reviser(self, attrname)
+        v = v or _search_members(self.__class__, attrname)
+        v = v or _lookup_attrname(self.__class__, attrname, set())
+        if v:
+            return functools.partial(v, self)
 
     return object.__getattribute__(self, attrname)
 
@@ -205,5 +230,6 @@ def reviser(original_class):
     original_class.is_reviser = True
 
     return original_class
+
 
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4

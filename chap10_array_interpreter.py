@@ -13,6 +13,7 @@ from chap8 import native_evaluator
 from chap9 import class_evaluator
 from chap10 import array_evaluator
 
+
 class ArrayInterpreter(BasicInterpreter):
     def testcode(self):
         return """
@@ -32,5 +33,3 @@ if __name__ == '__main__':
     ArrayInterpreter().main()
 
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
-
-
