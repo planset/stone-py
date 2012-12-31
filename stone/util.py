@@ -115,7 +115,12 @@ def _super(cls, obj):
                 def __getattribute__(self, attrname):
                     if attrname == 'original_obj':
                         return object.__getattribute__(self, attrname)
-                    m = object.__getattribute__(self, attrname)
+
+                    try:
+                        m = object.__getattribute__(self, attrname)
+                    except:
+                        m = object.__getattribute__(self.original_obj, attrname)
+
                     if inspect.ismethod(m):
                         # 元のメソッドを呼び出したあと、オブジェクトの属性を更新する。
                         def _m(self, *args, **kwargs):

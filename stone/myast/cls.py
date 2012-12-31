@@ -32,6 +32,10 @@ class ClassStmnt(ast.ASTList):
 
 
 class Dot(fun.Postfix):
+    class_info = None
+    is_field = False
+    index = 0
+
     def __init__(self, list_of_astree):
         super(Dot, self).__init__(list_of_astree)
 
